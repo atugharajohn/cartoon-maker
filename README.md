@@ -1,5 +1,7 @@
 # Cartoon Maker
 
+<img src="https://github.com/atugharajohn/cartoon-maker/blob/main/assets/1.png">
+
 ## Installation
 
 ### Application tested on:
