@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-173468417-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-173468417-1');
+    </script>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Cartoonizer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.3.3/dist/semantic.min.css">
+    <script
+        src="https://code.jquery.com/jquery-3.1.1.min.js"
+        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+        crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.3.3/dist/semantic.min.js"></script>
+    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    <style>
+        html {
+            box-sizing: border-box;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        body {
+            background-color: #f5f5f5; /* Light Gray */
+            color: #333333; /* Dark Gray */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            color: #ff6f61; /* Reddish */
+            font-size: 2.5em;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        .ui.buttons .button {
+            background-color: #008c8c; /* Dark Cyan */
+            color: white;
+        }
+        .ui.buttons .button:hover {
+            background-color: #006767; /* Light Cyan */
+        }
+        .ui.primary.button {
+            background-color: #ff6f61; /* Reddish */
+        }
+        .ui.primary.button:hover {
+            background-color: #e55d4d; /* Dark Reddish */
+        }
+        .ui.image, img.ui.image {
+            margin: 0 auto;
+            max-width: 100%;
+        }
+        .ui.divider {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loader" class="ui disabled dimmer">
+        <div class="ui text loader">Preparing your cartoon! May take an extra few seconds for video :)</div>
+    </div>
+
+    <div class='ui padded centered grid'>
+        <!-- Messaging system -->
+        <div class="row">
+            <div class="center aligned column">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div style="height:10%; display:flex; align-items: center; justify-content: center">
+                            {% for category, message in messages %}
+                                {% if category == error%}
+                                    <h3 style="color:red">{{ message }}</h3>
+                                {% else %}
+                                    <h3 style="color:green">{{ message }}</h3>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+
+        <!-- Heading of the page -->
+        <div class="row">
+            <div class='center aligned column'>
+                <h1>Cartoon Maker</h1>
+            </div>
+        </div>
+
+        <!-- Submission form -->
+        <div class="row">
+            <div class='center aligned column'>
+                <form id='formsubmit' method="post" action="cartoonize" enctype="multipart/form-data">
+
+                    <div class="ui buttons">
+                        <div id='uploadimage' class="ui button" style="align-items: center;">
+                            <i class="image icon"></i>
+                            Image
+                        </div>
+                    </div>
+
+                    <input type='file' id='hiddeninputfile' accept="image/*" name='image' style="display: none" />
+                    <input type="file" id="hiddeninputvideo" accept="video/*" name='video' style="display: none">
+                    <!-- <input id='submitbutton' class='ui button' type='submit'/> -->
+                </form>
+            </div>
+        </div>
+        {% if cartoonized_image or cartoonized_video %}
+        <div class="row">
+            <div class="column">
+                <!-- Nested grid -->
+                <div class="ui centered grid">
+                    <div class="row">
+                        <div class="center aligned column">
+                            {% if cartoonized_image %}
+                            <div class="ui centered card">
+                                <div class="image">
+                                    <img src="{{ cartoonized_image }}">
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if cartoonized_video %}
+                            <video id="player" width="320" height="240" controls>
+                                <source type="video/mp4" src="{{cartoonized_video}}">
+                            </video>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        {% if cartoonized_image %}
+                        <a href={{cartoonized_image}} download>
+                            <button class="ui primary button">
+                                <i class="download icon"></i>
+                                Download
+                            </button><br>
+                        </a>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="ui divider"></div>
+        <!-- Sample Images -->
+        <div class="row">
+            <!-- <div class="ui stackable grid">
+                <div class="five wide column">
+                    <img class="ui medium centered image" src="/static/sample_images/emma2.jpg">
+                </div>
+                <div class="five wide column">
+                    <img class="ui medium centered image" src="/static/sample_images/emma2_cartoonized.jpg">
+                </div>
+            </div> -->
+            <div class="five wide column">
+                <img class="ui medium centered image" src="/static/sample_images/1.jpg">
+            </div>
+            <div class="five wide column">
+                <img class="ui medium centered image" src="/static/sample_images/1-cartoon.jpg">
+            </div>
+        </div>
+        <div class="row">
+            <div class="five wide column">
+                <img class="ui medium centered image" src="/static/sample_images/2.jpg">
+            </div>
+            <div class="five wide column">
+                <img class="ui medium centered image" src="/static/sample_images/2-cartoon.jpg">
+            </div>
+        </div>
+        <div class="row">
+            <div class="five wide column">
+                <img class="ui medium centered image" src="/static/sample_images/3.jpg">
+            </div>
+            <div class="five wide column">
+                <img class="ui medium centered image" src="/static/sample_images/3-cartoon.jpg">
+            </div>
+        </div>
+
+        <!-- <div class="row">
+                <div class="five wide column">
+                    <img src="/static/sample_images/tenor.gif">
+                </div>
+                <div class="five wide column">
+                    <img src="/static/sample_images/tenor.gif">
+                </div>
+            </div> -->
+        <!-- FAQs -->
+
+    </div>
+
+
+    <script>
+        $('.ui.accordion')
+            .accordion()
+        ;
+        $("#uploadimage").on("click", function() {
+            $('#hiddeninputfile').click();
+        });
+
+        $("#uploadvideo").on("click", function() {
+            $('#hiddeninputvideo').click();
+        });
+
+        document.getElementById("hiddeninputfile").onchange = function() {
+            $('#loader').removeClass('disabled').addClass('active');
+            document.getElementById("formsubmit").submit();
+
+        };
+        document.getElementById("hiddeninputvideo").onchange = function() {
+            const fi = document.getElementById('hiddeninputvideo');
+            // Check if any file is selected.
+            if (fi.files.length > 0) {
+                for (const i = 0; i <= fi.files.length - 1; i++) {
+
+                    const fsize = fi.files.item(i).size;
+                    const file = Math.round((fsize / 1024));
+                    // The size of the file.
+                    //Change the max_file_size as per your need
+                    const max_file_size = 30720;
+                    if (file >= max_file_size) {
+                        alert(
+                            "File too Big, please select a file less than 30mb (10 sec at 1080p or 5 sec at 4k)");
+                    } else {
+                        $('#loader').removeClass('disabled').addClass('active');
+                        document.getElementById("formsubmit").submit();
+                    }
+                }
+            }
+
+
+        };
+        var recorder = document.getElementById('recorder');
+    </script>
+</body>
+</html>
